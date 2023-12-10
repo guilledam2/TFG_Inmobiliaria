@@ -5,8 +5,10 @@
 package inmobiliaria;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,9 +27,11 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultFormatter;
 import net.sf.jasperreports.engine.JRException;
@@ -45,14 +49,8 @@ import net.sf.jasperreports.view.JasperViewer;
  */
 public class App extends javax.swing.JFrame {
 
-    String usuario;
-    String contrasena;
-    boolean existe = false;
-    ResultSet resultado = null;
-    PreparedStatement consulta = null;
-    ResultSet resultado2 = null;
-    PreparedStatement consulta2 = null;
     private int IDAgente;
+    private Map<Integer, String> disponibilidadMap = new HashMap<>();
 
     /**
      * Creates new form App
@@ -110,7 +108,7 @@ public class App extends javax.swing.JFrame {
 
         });
 
-        habitaciones_combo.addActionListener(new ActionListener() {
+        dispo_combo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 filtrar();
@@ -142,6 +140,8 @@ public class App extends javax.swing.JFrame {
 
         });
 
+        setIconImage(getIconImage());
+
     }
 
     public App() {
@@ -150,7 +150,7 @@ public class App extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         this.setTitle("Filtrar Datos");
 
-        Menu menu = new Menu(this);
+        Menu menu = new Menu(this, this);
         setJMenuBar(menu);
 
         SpinnerNumberModel model = new SpinnerNumberModel(0, 0, Double.MAX_VALUE, 5000);
@@ -193,7 +193,15 @@ public class App extends javax.swing.JFrame {
 
         });
 
-        habitaciones_combo.addActionListener(new ActionListener() {
+        dispo_combo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                filtrar();
+            }
+
+        });
+
+        habitaciones_combo1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 filtrar();
@@ -225,6 +233,14 @@ public class App extends javax.swing.JFrame {
 
         });
 
+        setIconImage(getIconImage());
+
+    }
+
+    @Override
+    public Image getIconImage() {
+        Image retValue = Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("imagenes/logo.png"));
+        return retValue;
     }
 
     public int getIdAgente() {
@@ -315,7 +331,7 @@ public class App extends javax.swing.JFrame {
             Object[] datos = new Object[8];
 
             Statement stmt = con.createStatement();
-            ResultSet resul = stmt.executeQuery("SELECT DISTINCT tipo, direccion, precio, metros_cuadrados, id_propiedad FROM propiedades");
+            ResultSet resul = stmt.executeQuery("SELECT DISTINCT tipo, direccion, precio, metros_cuadrados, id_propiedad FROM propiedades WHERE disponibilidad <> 'Anulado'");
 
             while (resul.next()) {
                 datos[0] = resul.getString(1);
@@ -400,7 +416,7 @@ public class App extends javax.swing.JFrame {
             Object[] datos = new Object[8];
 
             Statement stmt = con.createStatement();
-            ResultSet resul = stmt.executeQuery("SELECT DISTINCT tipo, direccion, precio, metros_cuadrados, id_propiedad FROM propiedades P");
+            ResultSet resul = stmt.executeQuery("SELECT DISTINCT tipo, direccion, precio, metros_cuadrados, id_propiedad FROM propiedades WHERE disponibilidad <> 'Anulado'");
 
             while (resul.next()) {
                 datos[0] = resul.getString(1);
@@ -468,12 +484,13 @@ public class App extends javax.swing.JFrame {
     public void filtrar() {
         String texto = buscador.getText();
         String comboBox = (String) tipo_combo.getSelectedItem();
-        String comboBox2 = (String) habitaciones_combo.getSelectedItem();
+        String comboBox2 = (String) habitaciones_combo1.getSelectedItem();
         String comboBox3 = (String) banos_combo.getSelectedItem();
         String desde_m2 = (String) desde_combo.getSelectedItem();
         String hasta_m2 = (String) hasta_combo.getSelectedItem();
         double valorDesdePrecio = (double) jSpinner1.getValue();
         double valorHastaPrecio = (double) jSpinner2.getValue();
+        String disponibilidad = (String) dispo_combo.getSelectedItem();
 
         Connection con = activar();
 
@@ -608,10 +625,33 @@ public class App extends javax.swing.JFrame {
                 }
             }
 
+            //Disponibilidad
+            if (disponibilidad != null && !disponibilidad.isEmpty()) {
+                try {
+                    String dispoSeleccionada = disponibilidad;
+
+                    switch (dispoSeleccionada) {
+                        case "Disponible":
+                            sentencia += " AND P.disponibilidad = 'Disponible'";
+                            break;
+                        case "Anulado":
+                            sentencia += " AND P.disponibilidad = 'Anulado'";
+                            break;
+                        case "Comprado":
+                            sentencia += " AND P.disponibilidad = 'Comprado'";
+                            break;
+                        case "Alquilado":
+                            sentencia += " AND P.disponibilidad = 'Alquilado'";
+                            break;
+                    }
+                } catch (NumberFormatException e) {
+                }
+            }
+
             ResultSet resul = stmt.executeQuery(sentencia);
 
             if (!resul.next()) {
-                JOptionPane.showMessageDialog(null, "No hay resultados para los filtros proporcionados", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+                //JOptionPane.showMessageDialog(null, "No hay resultados para los filtros proporcionados", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 do {
                     datos[0] = resul.getString(1);
@@ -654,9 +694,8 @@ public class App extends javax.swing.JFrame {
         tipo_combo = new javax.swing.JComboBox<>();
         comprar_boton = new javax.swing.JToggleButton();
         alquilar_boton = new javax.swing.JToggleButton();
-        jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        habitaciones_combo = new javax.swing.JComboBox<>();
+        dispo_combo = new javax.swing.JComboBox<>();
         banos_combo = new javax.swing.JComboBox<>();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -674,6 +713,11 @@ public class App extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jSpinner2 = new javax.swing.JSpinner();
         jButton4 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        habitaciones_combo1 = new javax.swing.JComboBox<>();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -733,13 +777,7 @@ public class App extends javax.swing.JFrame {
         buttonGroup1.add(alquilar_boton);
         alquilar_boton.setText("Alquilar");
 
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/limpiar.png"))); // NOI18N
-        jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel7MouseClicked(evt);
-            }
-        });
-
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/informe.png"))); // NOI18N
         jButton1.setText("Informe");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -747,8 +785,7 @@ public class App extends javax.swing.JFrame {
             }
         });
 
-        habitaciones_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4 o mas" }));
-        habitaciones_combo.setSelectedIndex(3);
+        dispo_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione una opción", "Disponible", "Anulado", "Comprado", "Alquilado" }));
 
         banos_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3 o mas" }));
         banos_combo.setSelectedIndex(2);
@@ -856,6 +893,7 @@ public class App extends javax.swing.JFrame {
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/reiniciar_form.jpg"))); // NOI18N
         jButton4.setText("Reiniciar");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -901,114 +939,164 @@ public class App extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/limpiar.png"))); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Frank Ruhl Hofshi", 1, 48)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel4.setText("Buscar Inmuebles");
+
+        jLabel18.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel18.setText("Disponibilidad");
+
+        habitaciones_combo1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4 o mas" }));
+        habitaciones_combo1.setSelectedIndex(3);
+
+        jButton5.setText("Asignar Propiedad");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(51, 51, 51)
-                        .addComponent(jButton1)
-                        .addGap(111, 111, 111)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(62, 62, 62)
-                        .addComponent(tipo_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(131, 131, 131)
-                        .addComponent(comprar_boton)
-                        .addGap(52, 52, 52)
-                        .addComponent(alquilar_boton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel15)
-                        .addGap(29, 29, 29)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(59, 59, 59)
-                        .addComponent(jLabel16)
-                        .addGap(75, 75, 75)
-                        .addComponent(jLabel17)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(352, 352, 352)
+                        .addComponent(comprar_boton)
+                        .addGap(53, 53, 53)
+                        .addComponent(alquilar_boton)
+                        .addGap(234, 234, 234)
+                        .addComponent(habitaciones_combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(108, 108, 108)
+                        .addComponent(banos_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(70, 70, 70)
-                        .addComponent(habitaciones_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(69, 69, 69)
-                        .addComponent(banos_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(43, 43, 43)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 669, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel7)
-                                .addGap(163, 163, 163)))))
-                .addContainerGap(40, Short.MAX_VALUE))
+                                .addGap(210, 210, 210)
+                                .addComponent(dispo_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(59, 59, 59)
+                        .addComponent(jButton2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(126, 126, 126)
+                        .addComponent(jLabel4)
+                        .addGap(65, 65, 65)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tipo_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel16)
+                                .addGap(115, 115, 115)
+                                .addComponent(jLabel17)
+                                .addGap(126, 126, 126)
+                                .addComponent(jLabel3)))))
+                .addContainerGap(28, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(78, 78, 78)
+                .addComponent(jButton1)
+                .addGap(77, 77, 77)
+                .addComponent(jLabel2)
+                .addGap(7, 7, 7)
+                .addComponent(buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(167, 167, 167)
+                        .addComponent(jLabel15)
+                        .addGap(123, 123, 123)
+                        .addComponent(jLabel18))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton5)
+                        .addGap(37, 37, 37))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(57, 57, 57)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(comprar_boton)
-                                    .addComponent(alquilar_boton))))
-                        .addGap(23, 23, 23))
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel4))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(70, 70, 70)
+                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(70, 70, 70)
+                        .addComponent(jLabel17))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(17, 17, 17)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel16)
-                                .addComponent(jLabel17))
-                            .addComponent(jLabel15))
-                        .addGap(18, 18, 18)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel2)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(buscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tipo_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(habitaciones_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(banos_combo, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                        .addComponent(jLabel3)))
+                .addGap(20, 20, 20)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(banos_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comprar_boton)
+                            .addComponent(alquilar_boton)
+                            .addComponent(habitaciones_combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel7))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(50, 50, 50))
+                        .addGap(10, 10, 10)
+                        .addComponent(jButton5))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton1)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(8, 8, 8)
+                                        .addComponent(jLabel2))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(8, 8, 8)
+                                        .addComponent(buscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(26, 26, 26)
+                                        .addComponent(jLabel15))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(24, 24, 24)
+                                        .addComponent(jLabel18)))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGap(19, 19, 19)
+                                                .addComponent(dispo_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGap(18, 18, 18)
+                                                .addComponent(tipo_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGap(20, 20, 20)
+                                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(121, 121, 121)
+                                        .addComponent(jButton2)))))))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -1072,8 +1160,8 @@ public class App extends javax.swing.JFrame {
                             w.dispose();
                         }
                     }
-                    Modificar mo = new Modificar();
-                    mo.cargarDatosDesdeTabla(rs.getInt("id_propiedad"), rs.getString("titulo"), rs.getString("descripcion"), rs.getString("tipo"), rs.getString("direccion"), rs.getDouble("precio"), rs.getInt("habitaciones"), rs.getInt("banos"), rs.getDouble("metros_cuadrados"), rs.getInt("agente_id"), rs.getString("ruta"));
+                    Modificar mo = new Modificar(IDAgente);
+                    mo.cargarDatosDesdeTabla(rs.getInt("id_propiedad"), rs.getString("titulo"), rs.getString("descripcion"), rs.getString("tipo"), rs.getString("direccion"), rs.getDouble("precio"), rs.getInt("habitaciones"), rs.getInt("banos"), rs.getDouble("metros_cuadrados"), rs.getInt("agente_id"), rs.getString("ruta"), rs.getString("disponibilidad"));
                     mo.setVisible(true);
                 }
 
@@ -1090,7 +1178,6 @@ public class App extends javax.swing.JFrame {
 
                 try {
 
-                    // Eliminar de la tabla 'DisponibleCompra'
                     String borrarDisponibleCompra = "DELETE FROM DisponibleCompra D WHERE id_propiedad = " + jTable1.getValueAt(fila, 7);
                     Statement stmDisponibleCompra = con.createStatement();
                     int confirmacionDisponibleCompra = stmDisponibleCompra.executeUpdate(borrarDisponibleCompra);
@@ -1098,7 +1185,6 @@ public class App extends javax.swing.JFrame {
                         //JOptionPane.showMessageDialog(null, "Registro en DisponibleCompra eliminado correctamente");
                     }
 
-                    // Eliminar de la tabla 'DisponibleAlquiler'
                     String borrarDisponibleAlquiler = "DELETE FROM DisponibleAlquiler D WHERE id_propiedad = " + jTable1.getValueAt(fila, 7);
                     Statement stmDisponibleAlquiler = con.createStatement();
                     int confirmacionDisponibleAlquiler = stmDisponibleAlquiler.executeUpdate(borrarDisponibleAlquiler);
@@ -1106,7 +1192,6 @@ public class App extends javax.swing.JFrame {
                         //JOptionPane.showMessageDialog(null, "Registro en DisponibleAlquiler eliminado correctamente");
                     }
 
-                    // Eliminar de la tabla 'propiedades'
                     String borrarPropiedad = "DELETE FROM propiedades P WHERE id_propiedad = " + jTable1.getValueAt(fila, 7);
                     Statement stmPropiedad = con.createStatement();
                     int confirmacionPropiedad = stmPropiedad.executeUpdate(borrarPropiedad);
@@ -1114,33 +1199,19 @@ public class App extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, "Propiedad eliminada correctamente");
                     }
 
+                    filtrar();
+                    actualizar_combo();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.out.println("Error eliminar");
                 }
             }
-            actualizar_combo();
-            filtrar();
+
         }
 
 
     }//GEN-LAST:event_jTable1MouseClicked
-
-    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
-        // TODO add your handling code here:
-        tabla2();
-        buscador.setText("");
-        tipo_combo.setSelectedIndex(0);
-        habitaciones_combo.setSelectedIndex(3);
-        banos_combo.setSelectedIndex(2);
-        buttonGroup1.clearSelection();
-        tabla2();
-        jSpinner1.setValue(0.0);
-        jSpinner2.setValue(0.0);
-        desde_combo.setSelectedIndex(0);
-        hasta_combo.setSelectedIndex(0);
-
-    }//GEN-LAST:event_jLabel7MouseClicked
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         // TODO add your handling code here:
@@ -1151,12 +1222,13 @@ public class App extends javax.swing.JFrame {
 
         String texto = buscador.getText();
         String comboBox = (String) tipo_combo.getSelectedItem();
-        String comboBox2 = (String) habitaciones_combo.getSelectedItem();
+        String comboBox2 = (String) habitaciones_combo1.getSelectedItem();
         String comboBox3 = (String) banos_combo.getSelectedItem();
         String desde_m2 = (String) desde_combo.getSelectedItem();
         String hasta_m2 = (String) hasta_combo.getSelectedItem();
         double valorDesdePrecio = (double) jSpinner1.getValue();
         double valorHastaPrecio = (double) jSpinner2.getValue();
+        String disponibilidad = (String) dispo_combo.getSelectedItem();
 
         Connection con = activar();
 
@@ -1231,6 +1303,29 @@ public class App extends javax.swing.JFrame {
                 }
             }
 
+            //Disponibilidad
+            if (disponibilidad != null && !disponibilidad.isEmpty()) {
+                try {
+                    String dispoSeleccionada = disponibilidad;
+
+                    switch (dispoSeleccionada) {
+                        case "Disponible":
+                            sentencia += " AND P.disponibilidad = 'Disponible'";
+                            break;
+                        case "Anulado":
+                            sentencia += " AND P.disponibilidad = 'Anulado'";
+                            break;
+                        case "Comprado":
+                            sentencia += " AND P.disponibilidad = 'Comprado'";
+                            break;
+                        case "Alquilado":
+                            sentencia += " AND P.disponibilidad = 'Alquilado'";
+                            break;
+                    }
+                } catch (NumberFormatException e) {
+                }
+            }
+
             System.out.println(sentencia);
 
             InputStream vinculararchivo = null;
@@ -1271,6 +1366,52 @@ public class App extends javax.swing.JFrame {
         hasta_combo.setSelectedIndex(0);
         filtrar();
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        tabla2();
+        buscador.setText("");
+        tipo_combo.setSelectedIndex(0);
+        dispo_combo.setSelectedIndex(0);
+        habitaciones_combo1.setSelectedIndex(3);
+        banos_combo.setSelectedIndex(2);
+        buttonGroup1.clearSelection();
+        tabla2();
+        jSpinner1.setValue(0.0);
+        jSpinner2.setValue(0.0);
+        desde_combo.setSelectedIndex(0);
+        hasta_combo.setSelectedIndex(0);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+
+        int filaSeleccionada = jTable1.getSelectedRow();
+        if (filaSeleccionada != -1) {
+            int idSeleccionado = (int) jTable1.getValueAt(filaSeleccionada, 7);
+            Administracion_Clientes cliente = new Administracion_Clientes(IDAgente);
+
+            try {
+
+                cliente.setIDClienteSeleccionado(idSeleccionado);
+                cliente.propiedad.setText(String.valueOf(idSeleccionado));
+                cliente.tablaAsignarClientes();
+                cliente.jButton3.setVisible(false);
+                cliente.jButton1.setVisible(false);
+                cliente.jButton2.setVisible(false);
+                cliente.jButton4.setVisible(true);
+                cliente.jButton5.setVisible(true);
+                cliente.jButton7.setVisible(true);
+                cliente.setVisible(true);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona una fila antes de asignar una propiedad", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1322,22 +1463,26 @@ public class App extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JToggleButton comprar_boton;
     private javax.swing.JComboBox<String> desde_combo;
-    private javax.swing.JComboBox<String> habitaciones_combo;
+    private javax.swing.JComboBox<String> dispo_combo;
+    private javax.swing.JComboBox<String> habitaciones_combo1;
     private javax.swing.JComboBox<String> hasta_combo;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

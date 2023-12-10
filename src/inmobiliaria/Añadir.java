@@ -7,6 +7,7 @@ package inmobiliaria;
 import com.toedter.calendar.JDateChooser;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.io.File;
 import java.nio.file.Files;
@@ -14,17 +15,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -39,34 +38,46 @@ public class Añadir extends javax.swing.JFrame {
     /**
      * Creates new form Añadir
      */
-    
-    private int idAgente;
-    
+    private static int idAgente;
+
     public Añadir() {
         initComponents();
         this.setTitle("Añadir");
 
-        Menu menu = new Menu(this);
-        setJMenuBar(menu);
+        setIconImage(getIconImage());
 
         this.setResizable(false);
         this.setLocationRelativeTo(null);
 
-        combo();
-
+        //combo();
         jTextField5.setDocument(new PlainDocument() {
             @Override
             public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
-                if (esNumeroDouble(str)) {
+                String currentText = getText(0, getLength());
+                String newText = currentText.substring(0, offset) + str + currentText.substring(offset);
+
+                if (esNumeroValido(newText)) {
                     super.insertString(offset, str, attr);
                 }
             }
 
-            private boolean esNumeroDouble(String str) {
+            private boolean esNumeroValido(String str) {
                 try {
+                    String[] parts = str.split("\\.");
+                    if (parts.length > 1) {
+                        if (parts[0].length() + parts[1].length() > 15 || parts[1].length() > 2) {
+                            return false;
+                        }
+                    } else {
+                        if (str.length() > 15) {
+                            return false;
+                        }
+                    }
+
                     Double.parseDouble(str);
                     return true;
                 } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Introduzca un precio válido", "Formato", JOptionPane.WARNING_MESSAGE);
                     return false;
                 }
             }
@@ -75,16 +86,31 @@ public class Añadir extends javax.swing.JFrame {
         jTextField8.setDocument(new PlainDocument() {
             @Override
             public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
-                if (esNumeroDouble(str)) {
+                String currentText = getText(0, getLength());
+                String newText = currentText.substring(0, offset) + str + currentText.substring(offset);
+
+                if (esNumeroValido(newText)) {
                     super.insertString(offset, str, attr);
                 }
             }
 
-            private boolean esNumeroDouble(String str) {
+            private boolean esNumeroValido(String str) {
                 try {
+                    String[] parts = str.split("\\.");
+                    if (parts.length > 1) {
+                        if (parts[0].length() + parts[1].length() > 15 || parts[1].length() > 2) {
+                            return false;
+                        }
+                    } else {
+                        if (str.length() > 15) {
+                            return false;
+                        }
+                    }
+
                     Double.parseDouble(str);
                     return true;
                 } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Introduzca un tamaño válido", "Formato", JOptionPane.WARNING_MESSAGE);
                     return false;
                 }
             }
@@ -94,35 +120,54 @@ public class Añadir extends javax.swing.JFrame {
         jTextField7.setDocument(new IntegerDocument());
 
     }
-    
-    
+
+    @Override
+    public Image getIconImage() {
+        Image retValue = Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("imagenes/logo.png"));
+        return retValue;
+    }
+
     public Añadir(int iDAgente) {
         initComponents();
-        
-        idAgente=iDAgente;
-        System.out.println(idAgente);
+        this.setTitle("Añadir");
 
-        Menu menu = new Menu(this, this);
-        setJMenuBar(menu);
+        setIconImage(getIconImage());
+
+        idAgente = iDAgente;
+        System.out.println(idAgente);
 
         this.setResizable(false);
         this.setLocationRelativeTo(null);
 
-        combo();
-
+        //combo();
         jTextField5.setDocument(new PlainDocument() {
             @Override
             public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
-                if (esNumeroDouble(str)) {
+                String currentText = getText(0, getLength());
+                String newText = currentText.substring(0, offset) + str + currentText.substring(offset);
+
+                if (esNumeroValido(newText)) {
                     super.insertString(offset, str, attr);
                 }
             }
 
-            private boolean esNumeroDouble(String str) {
+            private boolean esNumeroValido(String str) {
                 try {
+                    String[] parts = str.split("\\.");
+                    if (parts.length > 1) {
+                        if (parts[0].length() + parts[1].length() > 15 || parts[1].length() > 2) {
+                            return false;
+                        }
+                    } else {
+                        if (str.length() > 15) {
+                            return false;
+                        }
+                    }
+
                     Double.parseDouble(str);
                     return true;
                 } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Introduzca un precio válido", "Formato", JOptionPane.WARNING_MESSAGE);
                     return false;
                 }
             }
@@ -131,16 +176,32 @@ public class Añadir extends javax.swing.JFrame {
         jTextField8.setDocument(new PlainDocument() {
             @Override
             public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
-                if (esNumeroDouble(str)) {
+                String currentText = getText(0, getLength());
+                String newText = currentText.substring(0, offset) + str + currentText.substring(offset);
+
+                if (esNumeroValido(newText)) {
                     super.insertString(offset, str, attr);
                 }
             }
 
-            private boolean esNumeroDouble(String str) {
+            private boolean esNumeroValido(String str) {
                 try {
+                    // Asegurarse de que haya como máximo 15 dígitos y 2 decimales
+                    String[] parts = str.split("\\.");
+                    if (parts.length > 1) {
+                        if (parts[0].length() + parts[1].length() > 15 || parts[1].length() > 2) {
+                            return false;
+                        }
+                    } else {
+                        if (str.length() > 15) {
+                            return false;
+                        }
+                    }
+
                     Double.parseDouble(str);
                     return true;
                 } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Introduzca un tamaño válido", "Formato", JOptionPane.WARNING_MESSAGE);
                     return false;
                 }
             }
@@ -150,15 +211,30 @@ public class Añadir extends javax.swing.JFrame {
         jTextField7.setDocument(new IntegerDocument());
 
     }
-    
-    
+
     public int getIdAgente() {
         return idAgente;
     }
-    
-    
 
-    public void combo() {
+    public void setIdAgente(String idAgente) {
+        jTextField2.setText(idAgente);
+    }
+
+    public static void actualizarDatos(String datos) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    jTextField2.setText(datos);
+                } catch (Exception e) {
+                }
+
+            }
+        });
+    }
+
+
+    /*public void combo() {
 
         try {
             Connection con = activar();
@@ -171,8 +247,7 @@ public class Añadir extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
+    }*/
     public Connection activar() {
         String bbdd = "jdbc:hsqldb:hsql://localhost/";
         String usuario = "SA";
@@ -275,14 +350,12 @@ public class Añadir extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
         jTextField4 = new javax.swing.JTextField();
         jTextField5 = new javax.swing.JTextField();
         jTextField6 = new javax.swing.JTextField();
         jTextField7 = new javax.swing.JTextField();
         jTextField8 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
@@ -291,9 +364,15 @@ public class Añadir extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         label_foto = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
-        idagente_combo = new javax.swing.JComboBox<>();
         jLabel13 = new javax.swing.JLabel();
         estado_combo1 = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jTextField2 = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        disponibilidad_combo = new javax.swing.JComboBox<>();
+        jLabel15 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -307,7 +386,7 @@ public class Añadir extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Frank Ruhl Hofshi", 1, 48)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(204, 0, 0));
-        jLabel1.setText("Añadir");
+        jLabel1.setText("Añadir Inmuebles");
 
         jLabel2.setForeground(new java.awt.Color(255, 255, 0));
         jLabel2.setText("Título:");
@@ -335,8 +414,6 @@ public class Añadir extends javax.swing.JFrame {
 
         jTextField1.setPreferredSize(new java.awt.Dimension(300, 22));
 
-        jTextField2.setPreferredSize(new java.awt.Dimension(300, 22));
-
         jTextField4.setPreferredSize(new java.awt.Dimension(300, 22));
 
         jTextField5.setPreferredSize(new java.awt.Dimension(300, 22));
@@ -351,13 +428,6 @@ public class Añadir extends javax.swing.JFrame {
         jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel10MouseClicked(evt);
-            }
-        });
-
-        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/limpiar.png"))); // NOI18N
-        jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel11MouseClicked(evt);
             }
         });
 
@@ -403,12 +473,37 @@ public class Añadir extends javax.swing.JFrame {
             }
         });
 
-        idagente_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione una opción" }));
-
         jLabel13.setForeground(new java.awt.Color(255, 255, 0));
         jLabel13.setText("Estado");
 
         estado_combo1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Comprar", "Alquilar" }));
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jTextField2.setEditable(false);
+        jTextField2.setText("Seleccione Agente");
+        jTextField2.setPreferredSize(new java.awt.Dimension(300, 22));
+        jTextField2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTextField2MouseClicked(evt);
+            }
+        });
+
+        jLabel14.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel14.setText("Disponibilidad");
+
+        disponibilidad_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Disponible", "Anulado", "Comprado", "Alquilado" }));
+
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/log-out.jpg"))); // NOI18N
+
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/limpiar.png"))); // NOI18N
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -417,77 +512,89 @@ public class Añadir extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel10)
-                        .addGap(203, 203, 203)
-                        .addComponent(jLabel1)
-                        .addGap(162, 162, 162)
-                        .addComponent(jButton3))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(48, 48, 48)
-                        .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(62, 62, 62)
-                        .addComponent(jLabel9)
-                        .addGap(12, 12, 12)
-                        .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabel3)
+                        .addGap(19, 19, 19)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
+                        .addGap(49, 49, 49)
+                        .addComponent(jLabel4)
+                        .addGap(24, 24, 24)
+                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(36, 36, 36)
-                                .addComponent(jLabel6))
                             .addComponent(jLabel7)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(37, 37, 37)
-                                .addComponent(jLabel8)))
-                        .addGap(12, 12, 12)
+                                .addGap(40, 40, 40)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel8))))
+                        .addGap(14, 14, 14)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(12, 12, 12)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(211, 211, 211)
+                                .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
                                 .addComponent(jButton1)
-                                .addGap(99, 99, 99)
-                                .addComponent(jLabel11)))
-                        .addGap(38, 38, 38)
-                        .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(63, 63, 63)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                            .addGap(55, 55, 55)
-                            .addComponent(jLabel4)
-                            .addGap(18, 18, 18)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(129, 129, 129)
-                            .addComponent(jLabel13)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(estado_combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGap(16, 16, 16)
-                            .addComponent(jLabel3)
-                            .addGap(18, 18, 18)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(111, 111, 111)
-                            .addComponent(jLabel12)
-                            .addGap(12, 12, 12)
-                            .addComponent(idagente_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(31, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(jLabel5)
-                .addGap(18, 18, 18)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(94, 94, 94)
+                                .addComponent(jButton4)))))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(341, 341, 341)
-                        .addComponent(txtimagen, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(96, 96, 96)
+                                .addComponent(jLabel12)
+                                .addGap(18, 18, 18)
+                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(116, 116, 116)
+                                .addComponent(jLabel13)
+                                .addGap(15, 15, 15)
+                                .addComponent(estado_combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(41, 41, 41)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jButton3)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addGap(120, 120, 120)
+                                            .addComponent(jButton2))
+                                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addContainerGap(108, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2)
-                        .addGap(134, 134, 134))))
+                        .addComponent(jLabel14)
+                        .addGap(18, 18, 18)
+                        .addComponent(disponibilidad_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(201, 201, 201))))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(87, 87, 87)
+                .addComponent(jLabel9)
+                .addGap(12, 12, 12)
+                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel10)
+                .addGap(98, 98, 98)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel15)
+                .addGap(15, 15, 15))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -495,80 +602,75 @@ public class Añadir extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel10)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(jLabel1))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addComponent(jButton3)))
-                .addGap(49, 49, 49)
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel15)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton3))
+                            .addComponent(jLabel1))))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(3, 3, 3)
                         .addComponent(jLabel9))
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(31, 31, 31)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(idagente_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(3, 3, 3)
-                                    .addComponent(jLabel3))
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel12))))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(3, 3, 3)
-                                .addComponent(jLabel4))
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(34, 34, 34)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(3, 3, 3)
-                                .addComponent(jLabel5))
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel12)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(42, 42, 42)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel13)
-                            .addComponent(estado_combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(20, 20, 20)
-                        .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtimagen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(11, 11, 11)
+                            .addComponent(estado_combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel3)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(jLabel6)
-                        .addGap(35, 35, 35)
-                        .addComponent(jLabel7)
-                        .addGap(35, 35, 35)
-                        .addComponent(jLabel8))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
-                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
-                        .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(28, 28, 28)
+                        .addGap(31, 31, 31)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11)))
+                            .addComponent(jLabel4)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel14)
+                                .addComponent(disponibilidad_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(33, 33, 33)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(33, 33, 33)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(34, 34, 34)
+                                .addComponent(jLabel7)
+                                .addGap(34, 34, 34)
+                                .addComponent(jLabel8))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton4))))
+                        .addContainerGap(101, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(64, 64, 64)
-                        .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(38, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2)
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -581,7 +683,9 @@ public class Añadir extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -664,17 +768,18 @@ public class Añadir extends javax.swing.JFrame {
         }*/
 
         String titulo = this.jTextField1.getText();
-        String descripcion = this.jTextField2.getText();
+        String descripcion = this.jTextArea1.getText();
         String tipo = this.jTextField3.getText();
         String direccion = this.jTextField4.getText();
         double precio = this.jTextField5.getText().isEmpty() ? 0.0 : Double.parseDouble(jTextField5.getText());
         int habitaciones = this.jTextField6.getText().isEmpty() ? 0 : Integer.parseInt(this.jTextField6.getText());
         int banos = this.jTextField7.getText().isEmpty() ? 0 : Integer.parseInt(this.jTextField7.getText());
         double metros_cuadrados = this.jTextField8.getText().isEmpty() ? 0.0 : Double.parseDouble(this.jTextField8.getText());
-        String id_agente_str = this.idagente_combo.getSelectedItem().toString();
+        String id_agente_str = this.jTextField2.getText();
         int id_agente = id_agente_str.isEmpty() ? 0 : Integer.parseInt(id_agente_str);
+        String disponibilidad = (String) this.disponibilidad_combo.getSelectedItem();
 
-        if (titulo.isEmpty() || descripcion.isEmpty() || tipo.isEmpty() || direccion.isEmpty()) {
+        if (titulo.isEmpty() || descripcion.isEmpty() || tipo.isEmpty() || direccion.isEmpty() || id_agente_str.isEmpty() || disponibilidad.isEmpty() || titulo.isBlank() || descripcion.isBlank() || tipo.isBlank() || direccion.isBlank() || id_agente_str.isBlank() || disponibilidad.isBlank()) {
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
         } else {
             Connection con = activar();
@@ -712,24 +817,20 @@ public class Añadir extends javax.swing.JFrame {
                         Path destinationPath = destino.toPath().resolve(selectedFile.getName());
                         Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-                        // Mostrar cuadro de diálogo para la fecha de inicio
                         JDateChooser dateChooserInicio = new JDateChooser();
                         int resultInicio = JOptionPane.showConfirmDialog(null, dateChooserInicio, "Seleccione la fecha de entrada", JOptionPane.OK_CANCEL_OPTION);
                         if (resultInicio == JOptionPane.OK_OPTION) {
                             Date fechaInicio = dateChooserInicio.getDate();
 
-                            // Ahora puedes usar fechaInicio
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                             String fechaInicioStr = dateFormat.format(fechaInicio);
 
                             if (estado_combo1.getSelectedIndex() == 1) {
-                                // Insertar en Propiedades
-                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta) "
-                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "')";
+                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta, disponibilidad) "
+                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "', '" + disponibilidad + "')";
                                 Statement stmt_propiedad = con.createStatement();
                                 stmt_propiedad.executeUpdate(sql_insert_propiedad);
 
-                                // Insertar en DisponibleAlquiler
                                 String sql_insert_alquiler = "INSERT INTO DisponibleAlquiler (id_alquiler, id_propiedad, fecha_inicio) "
                                         + "VALUES(NULL, " + id_propiedad + ", '" + fechaInicioStr + "')";
                                 Statement stmt_alquiler = con.createStatement();
@@ -739,12 +840,11 @@ public class Añadir extends javax.swing.JFrame {
                             }
 
                             if (estado_combo1.getSelectedIndex() == 0) {
-                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta) "
-                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "')";
+                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta, disponibilidad) "
+                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "', '" + disponibilidad + "')";
                                 Statement stmt_propiedad = con.createStatement();
                                 stmt_propiedad.executeUpdate(sql_insert_propiedad);
 
-                                // Insertar en DisponibleCompra
                                 String sql_insert_compra = "INSERT INTO DisponibleCompra (id_compra, id_propiedad, fecha_compra) "
                                         + "VALUES(NULL, " + id_propiedad + ", '" + fechaInicioStr + "')";
                                 Statement stmt_compra = con.createStatement();
@@ -757,7 +857,6 @@ public class Añadir extends javax.swing.JFrame {
                     }
 
                 } else {
-                    // Generar id_propiedad
                     String sql_get_id = "SELECT MAX(id_propiedad) + 1 AS next_id FROM Propiedades";
                     Statement stmt_id = con.createStatement();
                     ResultSet rs = stmt_id.executeQuery(sql_get_id);
@@ -780,24 +879,21 @@ public class Añadir extends javax.swing.JFrame {
                         Path destinationPath = destino.toPath().resolve(selectedFile.getName());
                         Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-                        // Mostrar cuadro de diálogo para la fecha de inicio
                         JDateChooser dateChooserInicio = new JDateChooser();
                         int resultInicio = JOptionPane.showConfirmDialog(null, dateChooserInicio, "Seleccione la fecha de entrada", JOptionPane.OK_CANCEL_OPTION);
                         if (resultInicio == JOptionPane.OK_OPTION) {
                             Date fechaInicio = dateChooserInicio.getDate();
 
-                            // Ahora puedes usar fechaInicio
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                             String fechaInicioStr = dateFormat.format(fechaInicio);
 
+                            //Alquiler
                             if (estado_combo1.getSelectedIndex() == 1) {
-                                // Insertar en Propiedades
-                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta) "
-                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "')";
+                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta, disponibilidad) "
+                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "', '" + disponibilidad + "')";
                                 Statement stmt_propiedad = con.createStatement();
                                 stmt_propiedad.executeUpdate(sql_insert_propiedad);
 
-                                // Insertar en DisponibleAlquiler
                                 String sql_insert_alquiler = "INSERT INTO DisponibleAlquiler (id_alquiler, id_propiedad, fecha_inicio) "
                                         + "VALUES(NULL, " + id_propiedad + ", '" + fechaInicioStr + "')";
                                 Statement stmt_alquiler = con.createStatement();
@@ -806,13 +902,13 @@ public class Añadir extends javax.swing.JFrame {
                                 JOptionPane.showMessageDialog(null, "Propiedad añadida Correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                             }
 
+                            //Compra
                             if (estado_combo1.getSelectedIndex() == 0) {
-                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta) "
-                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "')";
+                                String sql_insert_propiedad = "INSERT INTO Propiedades (id_propiedad, titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, agente_id, ruta, disponibilidad) "
+                                        + "VALUES(" + id_propiedad + ", '" + titulo + "', '" + descripcion + "', '" + tipo + "', '" + direccion + "', " + precio + ", " + habitaciones + ", " + banos + ", " + metros_cuadrados + ", " + id_agente + ", '" + rutaRelativaDestino + nombreArchivo + "', '" + disponibilidad + "')";
                                 Statement stmt_propiedad = con.createStatement();
                                 stmt_propiedad.executeUpdate(sql_insert_propiedad);
 
-                                // Insertar en DisponibleCompra
                                 String sql_insert_compra = "INSERT INTO DisponibleCompra (id_compra, id_propiedad, fecha_compra) "
                                         + "VALUES(NULL, " + id_propiedad + ", '" + fechaInicioStr + "')";
                                 Statement stmt_compra = con.createStatement();
@@ -826,7 +922,7 @@ public class Añadir extends javax.swing.JFrame {
                 }
 
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error al insertar propiedad y/o alquiler", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Introduzca imagen", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -847,23 +943,8 @@ public class Añadir extends javax.swing.JFrame {
         a.setVisible(true);
     }//GEN-LAST:event_jLabel10MouseClicked
 
-    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
-        // TODO add your handling code here:
-        this.jTextField1.setText("");
-        this.jTextField2.setText("");
-        this.jTextField3.setText("");
-        this.jTextField4.setText("");
-        this.jTextField5.setText("");
-        this.jTextField6.setText("");
-        this.jTextField7.setText("");
-        this.jTextField8.setText("");
-        this.idagente_combo.setSelectedIndex(0);
-        this.label_foto.setIcon(null);
-    }//GEN-LAST:event_jLabel11MouseClicked
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-
         cargarYmostrarImagen();
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -879,6 +960,30 @@ public class Añadir extends javax.swing.JFrame {
         App a = new App(idAgente);
         a.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jTextField2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField2MouseClicked
+        // TODO add your handling code here:
+        Aministracion_Agentes ada = new Aministracion_Agentes(idAgente);
+        ada.InfoAgente();
+        ada.InfoAgentesRestantes();
+        ada.setVisible(true);
+    }//GEN-LAST:event_jTextField2MouseClicked
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        this.jTextField1.setText("");
+        this.jTextArea1.setText("");
+        this.jTextField3.setText("");
+        this.jTextField4.setText("");
+        this.jTextField5.setText("");
+        this.jTextField6.setText("");
+        this.jTextField7.setText("");
+        this.jTextField8.setText("");
+        this.jTextField2.setText("");
+        this.estado_combo1.setSelectedIndex(0);
+        this.disponibilidad_combo.setSelectedIndex(0);
+        this.label_foto.setIcon(null);
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -919,21 +1024,26 @@ public class Añadir extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Añadir().setVisible(true);
+
             }
         });
+
     }
 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> disponibilidad_combo;
     private javax.swing.JComboBox<String> estado_combo1;
-    private javax.swing.JComboBox<String> idagente_combo;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -944,9 +1054,11 @@ public class Añadir extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField2;
+    public static javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
@@ -979,7 +1091,6 @@ public class Añadir extends javax.swing.JFrame {
                     Integer.parseInt(str);
                     super.insertString(offs, str, a);
                 } catch (NumberFormatException e) {
-
                 }
             }
         }

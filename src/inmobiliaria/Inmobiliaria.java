@@ -4,6 +4,8 @@
  */
 package inmobiliaria;
 
+import org.greenrobot.eventbus.EventBus;
+
 /**
  *
  * @author Usuario
@@ -13,9 +15,12 @@ public class Inmobiliaria {
     /**
      * @param args the command line arguments
      */
+    
+    
     public static void main(String[] args) {
         Principal p = new Principal();
         p.setVisible(true);
+        
     }
     
 }

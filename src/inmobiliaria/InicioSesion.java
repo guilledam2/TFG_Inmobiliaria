@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
@@ -42,6 +43,8 @@ public class InicioSesion extends javax.swing.JDialog {
     public InicioSesion() {
         initComponents();
         this.setTitle("Iniciar Sesión");
+
+        setIconImage(getIconImage());
     }
 
     public InicioSesion(java.awt.Frame parent, boolean modal) {
@@ -50,6 +53,13 @@ public class InicioSesion extends javax.swing.JDialog {
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setTitle("Iniciar Sesión");
+
+        setIconImage(getIconImage());
+    }
+
+    public Image getIconImage() {
+        Image retValue = Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("imagenes/logo.png"));
+        return retValue;
     }
 
     public String getUsuario() {

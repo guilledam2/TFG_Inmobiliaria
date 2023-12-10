@@ -91,7 +91,7 @@ $P!{filtrar}]]>
 				<textElement textAlignment="Center">
 					<font size="10"/>
 				</textElement>
-				<text><![CDATA[En este informe se muestran todos los datos de las propiedades]]></text>
+				<text><![CDATA[En este informe se muestran todos los datos de los inmuebles]]></text>
 			</staticText>
 			<image>
 				<reportElement x="-10" y="-10" width="188" height="133" backcolor="#FF9900" uuid="b0e58f3d-cb9a-47ff-a3c8-0a4631a99811"/>

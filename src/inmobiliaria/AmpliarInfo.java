@@ -6,6 +6,7 @@ package inmobiliaria;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Connection;
@@ -31,6 +32,12 @@ public class AmpliarInfo extends javax.swing.JDialog {
         this.setLocationRelativeTo(null);
         codProd = a;
         ampliarInfo();
+        setIconImage(getIconImage());
+    }
+    
+    public Image getIconImage(){
+        Image retValue= Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("imagenes/logo.png"));
+        return retValue;
     }
 
     public Connection activar() {
@@ -60,16 +67,16 @@ public class AmpliarInfo extends javax.swing.JDialog {
         try {
 
             Statement st = con.createStatement();
-            ResultSet resul = st.executeQuery("SELECT DISTINCT titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, ruta FROM propiedades WHERE id_propiedad=" + codProd);
+            ResultSet resul = st.executeQuery("SELECT DISTINCT titulo, descripcion, tipo, direccion, precio, habitaciones, banos, metros_cuadrados, ruta, disponibilidad FROM propiedades WHERE id_propiedad=" + codProd);
             while (resul.next()) {
 
                 jTextArea1.setText(" 𝑻𝒊𝒕𝒖𝒍𝒐: " + resul.getString(1) + "\n\n 𝑫𝒆𝒔𝒄𝒓𝒊𝒑𝒄𝒊𝒐́𝒏: " + resul.getString(2) + "\n\n 𝑻𝒊𝒑𝒐: " + resul.getString(3) + "\n\n 𝑫𝒊𝒓𝒆𝒄𝒄𝒊𝒐́𝒏: " + resul.getString(4)
-                        + "\n\n 𝑷𝒓𝒆𝒄𝒊𝒐: " + resul.getBigDecimal(5) + "\n\n 𝑯𝒂𝒃𝒊𝒕𝒂𝒄𝒊𝒐𝒏𝒆𝒔: " + resul.getInt(6) + "\n\n 𝑩𝒂𝒏̃𝒐𝒔: " + resul.getInt(7) + "\n\n 𝑴𝒆𝒕𝒓𝒐𝒔 𝒄𝒖𝒂𝒅𝒓𝒂𝒅𝒐𝒔: " + resul.getBigDecimal(8));
+                        + "\n\n 𝑷𝒓𝒆𝒄𝒊𝒐: " + resul.getBigDecimal(5) + "\n\n 𝑯𝒂𝒃𝒊𝒕𝒂𝒄𝒊𝒐𝒏𝒆𝒔: " + resul.getInt(6) + "\n\n 𝑩𝒂𝒏̃𝒐𝒔: " + resul.getInt(7) + "\n\n 𝑴𝒆𝒕𝒓𝒐𝒔 𝒄𝒖𝒂𝒅𝒓𝒂𝒅𝒐𝒔: " + resul.getBigDecimal(8)+ "\n\n 𝘿𝙞𝙨𝙥𝙤𝙣𝙞𝙗𝙞𝙡𝙞𝙙𝙖𝙙: " + resul.getString(10));
                 String rutaImagen = resul.getString(9);
 
                 ImageIcon imageIcon = new ImageIcon(rutaImagen);
 
-                Image image = imageIcon.getImage().getScaledInstance(311, 205, Image.SCALE_SMOOTH);
+                Image image = imageIcon.getImage().getScaledInstance(311, 243, Image.SCALE_SMOOTH);
                 imageIcon = new ImageIcon(image);
 
                 label_foto.setIcon(imageIcon);
@@ -117,14 +124,14 @@ public class AmpliarInfo extends javax.swing.JDialog {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(label_foto, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(label_foto, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(label_foto, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
+                .addComponent(label_foto, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -175,14 +182,14 @@ public class AmpliarInfo extends javax.swing.JDialog {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jButton1))
-                .addContainerGap(291, Short.MAX_VALUE))
+                .addContainerGap(321, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
                     .addGap(105, 105, 105)
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addContainerGap(23, Short.MAX_VALUE)))
+                    .addContainerGap(15, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
